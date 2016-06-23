@@ -9,41 +9,63 @@ import (
 var conn *amqp.Connection
 var consumerCh, pubCh *amqp.Channel
 
+// Gives the amqp connection i.e. rabbitmq connection
+// should be used as read only, should not be edited at the
+// user's side
 func GetAMQPConn() *amqp.Connection {
 	return conn
 }
 
+// Gives the rabbitmq publisher channel
+// should be used as read only, should not be edited at the
+// user's side.
 func GetPubChannel() *amqp.Channel {
 	return consumerCh
 }
 
+// Gives the rabbitmq consumer channel.
+// Should be used as read only, should not be edited at the
+// user's side.
 func GetConsumerChannel() *amqp.Channel {
 	return pubCh
 }
 
+// Takes connection url of the rabbitmq, and creates a connection
 func DialConn(conUrl string) (*amqp.Connection, error) {
 	var err error
 	conn, err = amqp.Dial(conUrl)
 	return conn, err
 }
 
+// Initiates the publisher channel, and returns it
+// once Initiated, pubCh should not be tampered with
 func InitPubChannel() (*amqp.Channel, error) {
 	var err error
 	pubCh, err = conn.Channel()
 	return pubCh, err
 }
 
+// Inititates Consumer channel, and returns it.
+// Consumer channel returned here should not be tampered with.
+// this is used by the Monitor() method which must be ran as a goroutine
 func InitConsumerChannel() (*amqp.Channel, error) {
 	var err error
 	consumerCh, err = conn.Channel()
 	return consumerCh, err
 }
 
-func Setup(configs []RMQConfig) error {
+// Takes list of RMQConfig, this is used to the queues
+// with a delayed exchange, ExchangeName is used for the
+// exchange creation. Setup call is idempotent, so it can be
+// called as many time as wished, although one time should suffice.
+// Note that all the exchange created is a delayed exchange, and
+// is of type topic, so routing is based on topic,
+// other types of exchange are not supported yet.
+func Setup(exchangeName string, configs []RMQConfig) error {
 	args := amqp.Table{}
 	args["x-delayed-type"] = "topic" // topic based routing
 	err := pubCh.ExchangeDeclare(
-		"droidcloud",        // name
+		exchangeName,        // name
 		"x-delayed-message", // type
 		true,                // durable
 		false,               // auto-deleted
@@ -57,7 +79,7 @@ func Setup(configs []RMQConfig) error {
 		return err
 	}
 	for _, v := range configs {
-		err = declareAndBind(v.QueueName, v.RoutingKey)
+		err = declareAndBind(exchangeName, v.QueueName, v.RoutingKey)
 		if err != nil {
 			return err
 		}
@@ -66,8 +88,7 @@ func Setup(configs []RMQConfig) error {
 	return nil
 }
 
-func declareAndBind(queueName, routingKey string) error {
-	// declare queue for apk scrape
+func declareAndBind(exchangeName, queueName, routingKey string) error {
 	q, err := pubCh.QueueDeclare(
 		queueName, // name
 		true,      // durable
@@ -83,7 +104,7 @@ func declareAndBind(queueName, routingKey string) error {
 	err = pubCh.QueueBind(
 		q.Name,       // queue name
 		routingKey,   // routing key
-		"droidcloud", // exchange
+		exchangeName, // exchange
 		false,
 		nil)
 	if err != nil {

@@ -1,5 +1,6 @@
 package rmq
 
+// RMQConfig is used as the struct to keep a queue configuration.
 type RMQConfig struct {
 	// Name of the queue to be created
 	QueueName string
@@ -8,6 +9,6 @@ type RMQConfig struct {
 	RoutingKey string
 }
 
-func NewRMQConfig(queueName, routingKey string) RMQConfig {
+func NewRMQConfig(exchangeName, queueName, routingKey string) RMQConfig {
 	return RMQConfig{QueueName: queueName, RoutingKey: routingKey}
 }
