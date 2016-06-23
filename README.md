@@ -12,5 +12,6 @@ Examples will be updated soon
 
 ## TODOs:
 * Write examples
-* Write documenation for sqs and rmq
-* Write documnetation for setting up rmq with delayed_message_plugin
+* Write documentation for sqs and rmq
+* Write documentation for setting up rmq with delayed_message_plugin
+* Make making delayed queue in sqs, idempotent, currently if a queue is created, and again create is called, the call fails
