@@ -4,6 +4,9 @@ Can schedule, recurring jobs and then execute them. Uses RabbitMQ or AWS SQS. Mo
 
 Examples will be updated soon
 
+## Note
+Broken as of now. Currently Not working
+
 ## Dependencies
 * github.com/mitchellh/mapstructure
 * github.com/betacraft/goamz/sqs
@@ -11,7 +14,7 @@ Examples will be updated soon
 * github.com/go-ini/ini
 
 ## Godocs
-* [jobs package](https://godoc.org/github.com/betacraft/scheduler/jobs)
+* [Jobs package](https://godoc.org/github.com/betacraft/scheduler/jobs)
 * [RabbitMQ implementation](https://godoc.org/github.com/betacraft/scheduler/queue/rmq)
 * [AWS SQS implementation](https://godoc.org/github.com/betacraft/scheduler/queue/sqs)
 
@@ -20,3 +23,4 @@ Examples will be updated soon
 * Write documentation for sqs and rmq
 * Write documentation for setting up rmq with delayed_message_plugin
 * Make making delayed queue in sqs, idempotent, currently if a queue is created, and again create is called, the call fails
+* Improve logging

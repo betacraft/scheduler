@@ -1,9 +1,10 @@
 package jobs
 
 import (
+	"encoding/json"
+	"log"
+	"reflect"
 	"time"
-
-	"github.com/mitchellh/mapstructure"
 )
 
 // Config is used by the Monitor() method
@@ -30,13 +31,17 @@ type Executor interface {
 	Execute(j *Job) error
 }
 
-var executors map[string]Executor
+var executors map[string]*Executor
+
+func init() {
+	executors = map[string]*Executor{}
+}
 
 // Register method registers the job with a type of executor,
 // This must be called for each new type of job, before jobs of
 // that type are submitted
 func RegisterExecutor(jobType string, executor Executor) {
-	executors[jobType] = executor
+	executors[jobType] = &executor
 }
 
 // Job defines the attributes required to run the job,
@@ -52,7 +57,7 @@ type Job struct {
 	Type string `json:"type"`
 
 	// Interval is the time gap after which the is to be executed from the EnqueueTime,
-	// This must be provided in microseconds
+	// This must be provided in milliseconds
 	// For eg if the job is to be exectuded in 10 seconds, then 10000 should be the value
 	Interval int64 `json:"interval"`
 
@@ -88,10 +93,19 @@ type Job struct {
 
 func (j *Job) GetExecutor() Executor {
 	// panic point, if exector not registered
-	e := executors[j.Type].New()
-	err := mapstructure.Decode(j.JobData, e)
+	// log.Println("Executors registered: ", executors)
+	// log.Println("Job Type: ", j.Type)
+	data, err := json.Marshal(j.JobData)
 	if err != nil {
 		return nil
 	}
-	return e
+	e := *executors[j.Type]
+	executor := e.New()
+	log.Println("type of interface: ", reflect.TypeOf(executor))
+	err = json.Unmarshal(data, &executor)
+	if err != nil {
+		log.Println(err)
+		return nil
+	}
+	return executor
 }

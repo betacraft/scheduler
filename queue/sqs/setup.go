@@ -20,7 +20,7 @@ func NewSQSConfig(regionName, queueName, delay string) SQSConfig {
 
 // Takes a list of Config structs
 // The method must be called after InitSQSRegions() is called
-func Setup(configs []SQSConfig) error {
+func Setup(configs ...SQSConfig) error {
 	for _, v := range configs {
 		_, err := CreateQueueWithDelay(v.QueueName, v.RegionName, v.Delay)
 		if err != nil {
