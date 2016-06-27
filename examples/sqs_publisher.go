@@ -22,7 +22,7 @@ func main() {
 	sqs.InitSQSRegions(awsAccess, awsSecret)
 
 	// Setup queue, with 30 seconds delay
-	sqsConf := sqs.NewSQSConfig("APSoutheast", "test-queue", "30")
+	sqsConf := sqs.NewSQSConfig("APSoutheast", "test-queue", sqs.MIN_QUEUE_DELAY)
 	err := sqs.Setup(sqsConf)
 	if err != nil {
 		log.Println("Error creating queue", err)
@@ -43,12 +43,12 @@ func main() {
 		EnqueueTime: time.Now().UTC(),
 		Type:        "CustomerExecutor", // this will be same while registering
 		JobData:     jobData,
-		Interval:    3000,
+		Interval:    45000,         // this is used for delaying the message in queue as well as the execution time is set in accordance
 		RoutingKey:  "",            // not required for sqs
 		Queue:       "test-queue",  // same as the queue created above
 		QueueRegion: "APSoutheast", // QueueRegion is same as region in Setup(), not required if rmq
 		IsRecurring: true,
-		ExecTime:    time.Now().UTC().Add(3000 * time.Millisecond),
+		ExecTime:    time.Now().UTC().Add(3000 * time.Millisecond), // Setting the exectution time for forst submission, will be set by interval from next time onwards
 	}
 
 	// Submit the job using enqueue method

@@ -68,7 +68,7 @@ func DeleteQueue(regionName, queueName string) error {
 	}
 	_, err = q.Delete()
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
 	}
 
 	return err
@@ -77,17 +77,17 @@ func DeleteQueue(regionName, queueName string) error {
 func SendMessage(regionName, queueName, msg string) error {
 	s, err := SQS(regionName)
 	if err != nil {
-		log.Fatal("error getting sqs object", err)
+		log.Print("error getting sqs object", err)
 		return err
 	}
 	q, err := s.GetQueue(queueName)
 	if err != nil {
-		log.Fatal("error getting queue with name: ", queueName, err)
+		log.Print("error getting queue with name: ", queueName, err)
 		return err
 	}
 	_, err = q.SendMessage(msg)
 	if err != nil {
-		log.Fatal("error sending message ", err)
+		log.Print("error sending message ", err)
 		return err
 	}
 	return nil

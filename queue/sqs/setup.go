@@ -1,5 +1,10 @@
 package sqs
 
+const (
+	MAX_QUEUE_DELAY = "900" // 15 minutes
+	MIN_QUEUE_DELAY = "0"   // No delay
+)
+
 type SQSConfig struct {
 	// Region where the queue is to be made
 	// This should be the friendly name given in the

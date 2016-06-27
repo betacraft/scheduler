@@ -19,30 +19,29 @@ func main() {
 	sqs.InitSQSRegions(awsAccess, awsSecret)
 
 	// Register the job type with its executor
-	ce := &CustomExecutor{}
+	ce := &CustomJob{}
 	jobs.RegisterExecutor("CustomerExecutor", ce)
 
+	// Start Monitoring Job
 	conf := jobs.Config{
 		QueueName:  "test-queue",  // Note that this is same as the sqs_publisher example
 		RegionName: "APSoutheast", // Note the region is same as the region in the Setup() call in sqs_publisher example
 	}
-
-	// Start Monitoring Job
 	done := make(chan bool)
 	go jobs.Monitor(conf)
 	<-done
 }
 
-// Implementation of Executor implementation
-type CustomExecutor struct {
+// Custom implementation of Executor interface
+type CustomJob struct {
 	Name string `json:"name"`
 }
 
-func (ce *CustomExecutor) New() jobs.Executor {
-	return &CustomExecutor{}
+func (ce *CustomJob) New() jobs.Executor {
+	return &CustomJob{}
 }
 
-func (ce *CustomExecutor) Execute(j *jobs.Job) error {
+func (ce *CustomJob) Execute(j *jobs.Job) error {
 	// print job info
 	fmt.Println(j.ID)
 	fmt.Println(ce.Name)
