@@ -9,9 +9,10 @@ machine:
 
 dependencies:
   override:
+    - echo `pwd`
     - go get github.com/betacraft/goamz/sqs
     - go get github.com/streadway/amqp
     - go get github.com/go-ini/ini
+    - cd jobs/ && go install
     - cd queue/sqs/ && go install
     - cd queue/rmq/ && go install
-    - cd jobs/ && go install
