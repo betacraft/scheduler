@@ -18,6 +18,7 @@ deployment:
   production:
     branch: master
     commands:
+      - echo $GOPATH
       - cd jobs/ && go install
       - cd queue/sqs/ && go build
       - cd queue/rmq/ && go install
