@@ -4,9 +4,6 @@ Can schedule, recurring jobs and then execute them. Uses RabbitMQ or AWS SQS. Mo
 
 Examples will be updated soon
 
-## Note
-Broken as of now. Currently Not working
-
 ## Dependencies
 * github.com/mitchellh/mapstructure
 * github.com/betacraft/goamz/sqs

@@ -19,7 +19,7 @@ func main() {
 	sqs.InitSQSRegions(awsAccess, awsSecret)
 
 	// Register the job type with its executor
-	ce := CustomExecutor{}
+	ce := &CustomExecutor{}
 	jobs.RegisterExecutor("CustomerExecutor", ce)
 
 	conf := jobs.Config{
@@ -38,11 +38,11 @@ type CustomExecutor struct {
 	Name string `json:"name"`
 }
 
-func (ce CustomExecutor) New() jobs.Executor {
-	return CustomExecutor{}
+func (ce *CustomExecutor) New() jobs.Executor {
+	return &CustomExecutor{}
 }
 
-func (ce CustomExecutor) Execute(j *jobs.Job) error {
+func (ce *CustomExecutor) Execute(j *jobs.Job) error {
 	// print job info
 	fmt.Println(j.ID)
 	fmt.Println(ce.Name)

@@ -31,17 +31,17 @@ type Executor interface {
 	Execute(j *Job) error
 }
 
-var executors map[string]*Executor
+var executors map[string]Executor
 
 func init() {
-	executors = map[string]*Executor{}
+	executors = map[string]Executor{}
 }
 
 // Register method registers the job with a type of executor,
 // This must be called for each new type of job, before jobs of
 // that type are submitted
 func RegisterExecutor(jobType string, executor Executor) {
-	executors[jobType] = &executor
+	executors[jobType] = executor
 }
 
 // Job defines the attributes required to run the job,
@@ -99,10 +99,10 @@ func (j *Job) GetExecutor() Executor {
 	if err != nil {
 		return nil
 	}
-	e := *executors[j.Type]
+	e := executors[j.Type]
 	executor := e.New()
 	log.Println("type of interface: ", reflect.TypeOf(executor))
-	err = json.Unmarshal(data, &executor)
+	err = json.Unmarshal(data, executor)
 	if err != nil {
 		log.Println(err)
 		return nil
