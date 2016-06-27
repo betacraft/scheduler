@@ -146,3 +146,5 @@ func (ce *CustomJob) Execute(j *jobs.Job) error {
 	return nil
 }
 ```
+
+## Check Wiki for detailed documentation for RabbitMQ[Not ready Yet !]
