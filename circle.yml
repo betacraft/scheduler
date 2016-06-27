@@ -33,7 +33,6 @@ deployment:
     branch: master
     commands:
       - echo /home/ubuntu/.go_workspace
-      - cp -r ./ /home/ubuntu/.go_workspace/src/github.com/betacraft/scheduler/
       - cd /home/ubuntu/.go_workspace/src/github.com/betacraft/scheduler/jobs/      && go install
       - cd /home/ubuntu/.go_workspace/src/github.com/betacraft/scheduler/queue/sqs/ && go install
       - cd /home/ubuntu/.go_workspace/src/github.com/betacraft/scheduler/queue/rmq/ && go install
