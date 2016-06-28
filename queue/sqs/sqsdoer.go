@@ -2,9 +2,9 @@ package sqs
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"runtime"
-	"strconv"
 	"time"
 
 	"github.com/betacraft/goamz/sqs"
@@ -83,7 +83,7 @@ func processJob(q *sqs.Queue, messages chan sqs.Message) {
 			if err != nil { // don't enqueue if err is found
 				log.Print("error executing job", err)
 			}
-			j.ExecTime = time.Now().Add(time.Duration(j.Interval) * time.Millisecond).UTC()
+			j.ExecTime = time.Now().UTC().Add(time.Duration(j.Interval) * time.Millisecond).UTC()
 		} else {
 			log.Print("job not executed as exectime is more: ", j.Type, j.ID)
 		}
@@ -115,12 +115,10 @@ func (d *sqsdoer) Enqueue(j *jobs.Job) error {
 		log.Print("Error marshaling job", err)
 		return err
 	}
-	attrs := map[string]string{
-		"DelaySeconds": getDelaySeconds(j.Interval),
-	}
+	fmt.Println("delay seconds : ", getDelaySeconds(j.Interval))
 
 	log.Print("message being sent:", string(res), j.ID)
-	_, err = q.SendMessageWithAttributes(string(res), attrs)
+	_, err = q.SendMessageWithDelay(string(res), getDelaySeconds(j.Interval))
 
 	if err != nil {
 		log.Print("error sending message", err)
@@ -131,11 +129,11 @@ func (d *sqsdoer) Enqueue(j *jobs.Job) error {
 
 //expects interval to be in milisecs, returns "900" if >= 900000
 // else returns "x" where x is < 90000/1000
-func getDelaySeconds(interval int64) string {
+func getDelaySeconds(interval int64) int64 {
 	var inSeconds int64
 	inSeconds = interval / 1000
 	if inSeconds >= 900 {
-		return "900"
+		return 900
 	}
-	return strconv.FormatInt(inSeconds, 10)
+	return inSeconds
 }

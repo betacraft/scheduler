@@ -88,7 +88,7 @@ type Job struct {
 	// It is an interface, which could hold job specific data,
 	// For eg: if a push notification is to be sent for a user, it could contain
 	// UserId, and related data
-	JobData map[string]interface{} `json:"job_data"`
+	JobData interface{} `json:"job_data"`
 }
 
 func (j *Job) GetExecutor() Executor {

@@ -62,19 +62,21 @@ func main() {
 	}
 	log.Println("Queue created successfully")
 
-	// Create a Job
-	// Check that job data is of the form of CustomExector{} in consumer
-	// CustomExector implements the Executor interface, also stored some job
-	// related data
-	jobData := map[string]interface{}{
-		"name": "John Snow",
+	// Create a JobData
+	// Check that job data is of the form of CustomJob{} in the consumer example
+	// CustomJob implements the Executor interface, also stores some job related data
+	type JobData struct {
+		Name string `json:"name"`
 	}
+	jobData := JobData{Name: "John Snow"}
 
+	// Create a Job, and fill up the required values,
+	// then submit using enqueue
 	j := &jobs.Job{
 		ID:          uuid.New(),
 		EnqueueTime: time.Now().UTC(),
 		Type:        "CustomerExecutor", // this will be same while registering
-		JobData:     jobData,
+		JobData:     &jobData,
 		Interval:    45000,         // this is used for delaying the message in queue as well as the execution time is set in accordance
 		RoutingKey:  "",            // not required for sqs
 		Queue:       "test-queue",  // same as the queue created above
@@ -94,6 +96,7 @@ func main() {
 	fmt.Println("Job successfully submitted with id", j.ID)
 }
 ```
+
 
 ### Consumer(This will have the executor implementation)
 ```Go
@@ -151,4 +154,7 @@ func (ce *CustomJob) Execute(j *jobs.Job) error {
 }
 ```
 
-## Check Wiki for detailed documentation for RabbitMQ[Not ready Yet !]
+
+## For issues
+* Raise them on Github
+* Email at (abhishek@betacraft.co, abhishek.bhattacharjee11@gmail.com)
