@@ -28,6 +28,12 @@ Examples will be updated soon
 
 ## Examples(SQS)
 
+### Before running the example set the ENV variables
+```
+export AWS_ACCESS=your_access_key
+export AWS_SECRET=your_secret_key
+```
+
 ### Publisher (Submitting a job )
 ```Go
 package main
@@ -53,7 +59,7 @@ func main() {
 	// Init SQS SDK with creds
 	sqs.InitSQSRegions(awsAccess, awsSecret)
 
-	// Setup queue, with 30 seconds delay
+	// Setup queue, with minimum delay i.e 0 second
 	sqsConf := sqs.NewSQSConfig("APSoutheast", "test-queue", sqs.MIN_QUEUE_DELAY)
 	err := sqs.Setup(sqsConf)
 	if err != nil {

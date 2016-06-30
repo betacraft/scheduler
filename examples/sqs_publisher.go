@@ -21,7 +21,7 @@ func main() {
 	// Init SQS SDK with creds
 	sqs.InitSQSRegions(awsAccess, awsSecret)
 
-	// Setup queue, with 30 seconds delay
+	// Setup queue, with minimum delay i.e '0' second
 	sqsConf := sqs.NewSQSConfig("APSoutheast", "test-queue", sqs.MIN_QUEUE_DELAY)
 	err := sqs.Setup(sqsConf)
 	if err != nil {
