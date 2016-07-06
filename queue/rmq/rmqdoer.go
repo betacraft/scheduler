@@ -112,6 +112,7 @@ func consume(qname string) {
 					if err == nil { // succesfully enqueued
 						return
 					}
+
 					// failure enqueueing
 					switch err.(type) {
 					case amqp.Error:
