@@ -22,7 +22,7 @@ type rmqdoer struct {
 func (d *rmqdoer) Enqueue(j *jobs.Job) error {
 	res, err := json.Marshal(j)
 	if err != nil {
-		log.Fatal("Error marshaling job", err)
+		log.Print("Error marshaling job", err)
 		return err
 	}
 	headers := amqp.Table{}
@@ -71,7 +71,7 @@ func consume(qname string) {
 	)
 
 	if err != nil {
-		log.Fatal("queue consumer could not be initiated:", err)
+		log.Print("queue consumer could not be initiated:", err)
 		return
 	}
 
@@ -85,32 +85,40 @@ func consume(qname string) {
 			go func(del amqp.Delivery) { // start a goroutine to handle a message delivery
 				j := &jobs.Job{}
 				err := json.Unmarshal(del.Body, &j)
+
+				// Ack message always
 				defer func(d amqp.Delivery) {
 					log.Print(fmt.Sprintf("Ack delivery, JobID: %s, JobType: %s, consumer: %s", j.ID, j.Type, d.ConsumerTag))
 					d.Ack(false)
 				}(del)
+
+				// Do nothing if unmarshalling fails
 				if err != nil {
-					log.Fatal("Error converting message body to job: ", err)
-				} else {
-					// panic point if GetExecutor returns nil
-					err := j.GetExecutor().Execute(j)
-					if err == nil { // ack the messsage
-						log.Print("succesfully executed job")
-						if j.IsRecurring {
-							log.Print(fmt.Sprintf("re-enqueing, JobID: %s, JobType: %s", j.ID, j.Type))
-							err = jobs.Enqueue(j)
-							if err != nil {
-								switch err.(type) {
-								case amqp.Error:
-									err, _ = err.(amqp.Error)
-									done <- true
-								default:
-									log.Print("marshal error do nothing")
-								}
-							}
-						}
-					} else { // do not enqueue if execute returns error
-						log.Fatal("error executing job: ", err)
+					log.Print("Error converting message body to job: ", err)
+					return
+				}
+
+				// panic point if GetExecutor returns nil
+				err = j.GetExecutor().Execute(j)
+				if err != nil { // do not enqueue if execute returns error
+					log.Print("error executing job: ", err)
+					return
+				}
+
+				log.Print("succesfully executed job")
+				if j.IsRecurring {
+					log.Print(fmt.Sprintf("re-enqueing, JobID: %s, JobType: %s", j.ID, j.Type))
+					err = jobs.Enqueue(j)
+					if err == nil { // succesfully enqueued
+						return
+					}
+					// failure enqueueing
+					switch err.(type) {
+					case amqp.Error:
+						err, _ = err.(amqp.Error)
+						done <- true
+					default:
+						log.Print("marshal error do nothing")
 					}
 				}
 			}(d)
@@ -132,7 +140,7 @@ func restartConn() {
 	conn.Close()
 	conn, err = DialConn(config.Key("rabbitmq_dial_url").String())
 	if err != nil {
-		log.Fatal("error re-initiating connection: ", err)
+		log.Print("error re-initiating connection: ", err)
 		panic(err)
 	}
 	log.Print("re-initiated connection")
@@ -143,7 +151,7 @@ func restartPubChannel() {
 	var err error
 	pubCh, err = conn.Channel()
 	if err != nil {
-		log.Fatal("error re-initiating publisher channel: ", err)
+		log.Print("error re-initiating publisher channel: ", err)
 		panic(err)
 	}
 	log.Print("re-initiated publisher channel")
@@ -154,7 +162,7 @@ func restartConsumerChannel() {
 	var err error
 	consumerCh, err = conn.Channel()
 	if err != nil {
-		log.Fatal("error re-initiating consumer channel: ", err)
+		log.Print("error re-initiating consumer channel: ", err)
 		panic(err)
 	}
 	log.Print("re-initiated consumer channel")
